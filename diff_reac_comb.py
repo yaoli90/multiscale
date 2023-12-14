@@ -45,14 +45,15 @@ def retrain(model, x_train, x_boundary, u_boundary, x_test, u_test, optimizer, e
     plot_1d(u_pred.reshape(u_test.shape)[400,:], x, u_gt=u_test[400,:], path="./diff_reac/sec8_comb"+idx+".png")
 
 
-N0 = 2000
-Nb = 100
-Ni = 50
 
-x_inner = latin_hypercube_sample([[-np.pi,np.pi],[0,1]], N0)
+N0 = 1000
+Nb = 100
+Ni = 100
+
+x_inner = latin_hypercube_sample([[-np.pi,np.pi],[0,.1]], N0)
 x_l, u_l = boundary_sample([[-np.pi,np.pi],[0,0]], Ni, gt=lambda x: 0.01*np.sin(x[:,0])[:,None])
-x_u, u_u = boundary_sample([[-np.pi,-np.pi],[0,1]], Nb)
-x_b, u_b = boundary_sample([[np.pi,np.pi],[0,1]], Nb)
+x_u, u_u = boundary_sample([[-np.pi,-np.pi],[0,.1]], Nb)
+x_b, u_b = boundary_sample([[np.pi,np.pi],[0,.1]], Nb)
 
 
 
@@ -70,6 +71,31 @@ retrain(PINN, np.vstack([x_inner, x_l, x_u, x_b]), \
 
 optimizer = torch.optim.Adam(PINN.parameters(), lr=0.00001)
 retrain(PINN, np.vstack([x_inner, x_l, x_u, x_b]), \
+    np.vstack([x_l, x_u, x_b]), \
+    np.vstack([u_l, u_u, u_b]), x_test, u_test, \
+    optimizer, 1e5, idx="3")
+
+N0 = 2000
+x_inner2 = latin_hypercube_sample([[-np.pi,np.pi],[.1,1]], N0)
+x_u, u_u = boundary_sample([[-np.pi,-np.pi],[0,1]], Nb)
+x_b, u_b = boundary_sample([[np.pi,np.pi],[0,1]], Nb)
+
+
+
+optimizer = torch.optim.Adam(PINN.parameters(), lr=0.001)
+retrain(PINN, np.vstack([x_inner, x_inner2, x_l, x_u, x_b]), \
+    np.vstack([x_l, x_u, x_b]), \
+    np.vstack([u_l, u_u, u_b]), x_test, u_test, \
+    optimizer, 1e5, idx="1")
+
+optimizer = torch.optim.Adam(PINN.parameters(), lr=0.0001)
+retrain(PINN, np.vstack([x_inner, x_inner2, x_l, x_u, x_b]), \
+    np.vstack([x_l, x_u, x_b]), \
+    np.vstack([u_l, u_u, u_b]), x_test, u_test, \
+    optimizer, 1e5, idx="2")
+
+optimizer = torch.optim.Adam(PINN.parameters(), lr=0.00001)
+retrain(PINN, np.vstack([x_inner, x_inner2, x_l, x_u, x_b]), \
     np.vstack([x_l, x_u, x_b]), \
     np.vstack([u_l, u_u, u_b]), x_test, u_test, \
     optimizer, 1e5, idx="3")

@@ -2,7 +2,6 @@ import numpy as np
 import torch
 import pickle
 
-from visualization import *
 from model import elliptic_1d, latin_hypercube_sample, boundary_sample, plot_1d
 
 ''' Settings and seeds '''
